@@ -1,0 +1,60 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  order-service:
+    build:
+      context: .
+      dockerfile: services/order_service/Dockerfile
+    environment:
+      SERVICE_NAME: order-service
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      EXCHANGE_NAME: ecommerce.events
+      SERVICE_PORT: 8001
+      AUTH_SECRET_KEY: dev-auth-secret
+      AUTH_ISSUER: pdftoexcel-ecommerce
+      AUTH_DEMO_USERNAME: demo
+      AUTH_DEMO_PASSWORD: demo123
+    ports:
+      - "8001:8001"
+    depends_on:
+      - rabbitmq
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: services/inventory_service/Dockerfile
+    environment:
+      SERVICE_NAME: inventory-service
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      EXCHANGE_NAME: ecommerce.events
+      SERVICE_PORT: 8002
+      AUTH_SECRET_KEY: dev-auth-secret
+      AUTH_ISSUER: pdftoexcel-ecommerce
+      AUTH_DEMO_USERNAME: demo
+      AUTH_DEMO_PASSWORD: demo123
+    ports:
+      - "8002:8002"
+    depends_on:
+      - rabbitmq
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: services/payment_service/Dockerfile
+    environment:
+      SERVICE_NAME: payment-service
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      EXCHANGE_NAME: ecommerce.events
+      SERVICE_PORT: 8003
+      AUTH_SECRET_KEY: dev-auth-secret
+      AUTH_ISSUER: pdftoexcel-ecommerce
+      AUTH_DEMO_USERNAME: demo
+      AUTH_DEMO_PASSWORD: demo123
+    ports:
+      - "8003:8003"
+    depends_on:
+      - rabbitmq
